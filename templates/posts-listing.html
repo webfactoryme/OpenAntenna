@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Posts{% endblock %}
+
+
+{% block body %}
+
+<div class="row" style="padding-bottom: 20px; padding-top: 20px;">
+	<center>
+		<h2>Latest Posts</h2>
+	</center>
+</div>
+
+{% for item in posts_data %}
+
+	<div class="row" style="padding-bottom: 20px;">
+		<div class="col-md-2">
+	        <a href="/post/{{item[11]}}"><img class="img-fluid" src="{{item[5]}}"></a>
+	    </div>
+	    <div class="col-md-10">
+	    	<a href="/post/{{item[11]}}"><p>{{item[1]}}</p></a>
+	    	<p>Published: {{item[9]}}</p>
+	    	<p>{{item[2]}}</p>
+	    </div>
+	</div>
+	<hr>
+
+{% endfor %}
+
+{% endblock %}
