@@ -21,12 +21,7 @@ engine = create_engine(
 meta = MetaData(bind=engine)
 MetaData.reflect(meta)
 
-
 db = SQLAlchemy(app)
-
- 
-
-
 
 ### creating Databases Tables
 
@@ -52,7 +47,6 @@ class analytics(Base):
     def __str__(self):
         return f'<analytics {self.id}>'
 
-
 class donation_methods(Base):
     __tablename__="donation_methods"
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
@@ -64,7 +58,6 @@ class donation_methods(Base):
 
     def __str__(self):
         return f'<donation_methods {self.id}>'
-
 
 class posts(Base):
     __tablename__="posts"
@@ -85,8 +78,6 @@ class posts(Base):
 
     def __str__(self):
         return f'<posts {self.id}>'
- 
-
 
 class relays(Base):
     __tablename__="relays"
@@ -99,7 +90,6 @@ class relays(Base):
     def __str__(self):
         return f'<relays {self.id}>'
 
-
 class settings(Base):
     __tablename__="settings"
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
@@ -111,12 +101,10 @@ class settings(Base):
     explicit = db.Column(db.String(20),nullable=False)
     donations_active = db.Column(db.Integer, nullable=False)
     donate_description = db.Column(db.String(1000),nullable=False)
-    shortened_name = db.Column(db.String(100),nullable=False)
-     
+    shortened_name = db.Column(db.String(100),nullable=False)     
 
     def __str__(self):
         return f'<settings {self.id}>'
-
 
 class social(Base):
     __tablename__="social"
@@ -136,10 +124,6 @@ class GuestUser(Base):
     email = Column(db.String(50),nullable=False)
     message = Column(db.String(1000), nullable=False)
 
-
- 
-
-
 class users(Base):
     __tablename__="users"
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
@@ -155,14 +139,10 @@ class users(Base):
     user_type = db.Column(db.String(10),nullable=False)
     status = db.Column(db.String(10),nullable=False)
      
-
     def __str__(self):
         return f'<users {self.id}>'
 
-
 Base.metadata.create_all(engine)
-
-
 
 @app.route("/")
 def home():
@@ -301,7 +281,6 @@ def admin_analytics_ip(ip_id):
     ip_address = ip_id.replace('-','.')
     return(ip_address)
 
-    
 @app.route("/admin/users")
 def admin_users():
     # Get settings data
@@ -359,9 +338,5 @@ def signup():
     settings_data=engine.execute(sql).fetchone() 
     return('coming soon')
 
-if __name__ == "__main__":
-    
-     
+if __name__ == "__main__":   
     app.run(debug = True)
-
-
