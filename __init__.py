@@ -1,30 +1,24 @@
 from flask import Flask, session, request, redirect, url_for, render_template
-import MySQLdb
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine import result
-
 from sqlalchemy import text, Column, create_engine, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 Base=declarative_base()
-
 app = Flask(__name__)
 
 # Database Connection
+engine = create_engine("mysql://root:password@localhost:3306/openantenna")    
 
-engine = create_engine(
-    "mysql://user:1234@localhost:3306/openantenna")     # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
-
-# initialize the Metadata Object
+# Initialize Metadata Object
 meta = MetaData(bind=engine)
 MetaData.reflect(meta)
 
 db = SQLAlchemy(app)
 
-### creating Databases Tables
-
+### Create Database Tables
 class analytics(Base):
     __tablename__="analytics"
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
@@ -43,7 +37,6 @@ class analytics(Base):
     latitude = db.Column(db.String(10),nullable=False)
     longitude = db.Column(db.String(10),nullable=False)
     postal = db.Column(db.String(100),nullable=True)
-
     def __str__(self):
         return f'<analytics {self.id}>'
 
@@ -54,8 +47,6 @@ class donation_methods(Base):
     image = db.Column(db.String(300), nullable=False)
     address = db.Column(db.String(300),nullable=False)
     active = db.Column(db.Integer,autoincrement=False)
-     
-
     def __str__(self):
         return f'<donation_methods {self.id}>'
 
@@ -75,7 +66,6 @@ class posts(Base):
                            server_default=func.now(),nullable=False)
     requests = db.Column(db.Integer, nullable=False)
     title_slug = db.Column(db.String(750),nullable=False)
-
     def __str__(self):
         return f'<posts {self.id}>'
 
@@ -86,7 +76,6 @@ class relays(Base):
     description = db.Column(db.String(1000), nullable=False)
     url = db.Column(db.String(500),nullable=False)
     type = db.Column(db.String(100),nullable=False)
-
     def __str__(self):
         return f'<relays {self.id}>'
 
@@ -102,7 +91,6 @@ class settings(Base):
     donations_active = db.Column(db.Integer, nullable=False)
     donate_description = db.Column(db.String(1000),nullable=False)
     shortened_name = db.Column(db.String(100),nullable=False)     
-
     def __str__(self):
         return f'<settings {self.id}>'
 
@@ -113,7 +101,6 @@ class social(Base):
     description = db.Column(db.String(300), nullable=False)
     url = db.Column(db.String(300),nullable=False)
     image = db.Column(db.String(300),nullable=False)
-    
     def __str__(self):
         return f'<social {self.id}>'
 
@@ -138,7 +125,6 @@ class users(Base):
                            server_default=func.now(),nullable=False)
     user_type = db.Column(db.String(10),nullable=False)
     status = db.Column(db.String(10),nullable=False)
-     
     def __str__(self):
         return f'<users {self.id}>'
 
@@ -152,7 +138,6 @@ def home():
     # Get posts data
     sql = text("SELECT * FROM posts WHERE status = 'published';")
     posts_data=engine.execute(sql).fetchall()
-        
     # Get donations data
     sql = text("SELECT * FROM donation_methods WHERE active = 1;")
     donation_methods_data=engine.execute(sql).fetchall()
@@ -175,8 +160,7 @@ def posts():
 def single_post_page(post_slug):
     # Get individual post data
     sql = text("SELECT * FROM posts WHERE status = 'published' and title_slug = '{}' ORDER BY id DESC;".format(str(post_slug)))
-    post_data=engine.execute(sql).fetchone()        
-
+    post_data=engine.execute(sql).fetchone()
     # Get settings data
     sql = text("SELECT * FROM settings;")
     settings_data=engine.execute(sql).fetchone()
@@ -191,20 +175,22 @@ def single_post_page(post_slug):
 @app.route("/donate")
 def donate():
     # Get donate status and description
-     
     sql = text("SELECT * FROM settings LIMIT 1;")
     show_data=engine.execute(sql).fetchone()
-    if show_data[7] == 1:
-        # Get settings data
-        sql = text("SELECT * FROM settings;")
-        settings_data=engine.execute(sql).fetchone()
-        # Get posts data
-        sql = text("SELECT * FROM posts WHERE status = 'published';")
-        posts_data=engine.execute(sql).fetchall()    
-        # Get donations data
-        sql = text("SELECT * FROM donation_methods WHERE active = 1;")
-        donation_methods_data=engine.execute(sql).fetchall()        
-        return render_template('donate.html', settings_data=settings_data, posts_data=posts_data, donation_methods_data=donation_methods_data)
+    if show_data:
+        if show_data[7] == 1:
+            # Get settings data
+            sql = text("SELECT * FROM settings;")
+            settings_data=engine.execute(sql).fetchone()
+            # Get posts data
+            sql = text("SELECT * FROM posts WHERE status = 'published';")
+            posts_data=engine.execute(sql).fetchall()    
+            # Get donations data
+            sql = text("SELECT * FROM donation_methods WHERE active = 1;")
+            donation_methods_data=engine.execute(sql).fetchall()        
+            return render_template('donate.html', settings_data=settings_data, posts_data=posts_data, donation_methods_data=donation_methods_data)
+        else:
+            return(redirect(url_for('home')))
     else:
         return(redirect(url_for('home')))
 
@@ -216,7 +202,6 @@ def contact():
     # Get posts data
     sql = text("SELECT * FROM posts WHERE status = 'published';")
     posts_data=engine.execute(sql).fetchall()    
-
     # Get donations data
     sql = text("SELECT * FROM donation_methods WHERE active = 1;")
     donation_methods_data=engine.execute(sql).fetchall() 
@@ -224,8 +209,6 @@ def contact():
         name = request.form['name']
         email = request.form['email']
         message = request.form['message']
-        # print(name, email, message) 
-
         data = ( { "name": name,
           "email": email,
           "message": message},
@@ -233,10 +216,8 @@ def contact():
         statement = text("""INSERT INTO guest_user (name, email,
         message) VALUES(:name, :email,
         :message)""")
-
         for line in data:
             engine.execute(statement, **line)
-
         return redirect(url_for('home'))
     return(render_template('contact.html', settings_data=settings_data, posts_data=posts_data, donation_methods_data=donation_methods_data))
 
@@ -312,7 +293,6 @@ def login():
         # # Get potential user data
         email = request.form['email']
         password = request.form['password']
-
         sql = text("SELECT * FROM users WHERE email = '{}' AND password = '{}';".format(email,password))
         user_data=engine.execute(sql).fetchone() 
         if user_data == None:
@@ -321,8 +301,6 @@ def login():
             session['username'] = user_data[1]
             session['email'] = user_data[3]
             return(redirect(url_for('admin')))
-        return()
-
     return('''
         <form method="post">
             <p><input type=text name=email>
@@ -339,4 +317,4 @@ def signup():
     return('coming soon')
 
 if __name__ == "__main__":   
-    app.run(debug = True)
+    app.run(host="0.0.0.0",debug = True)
