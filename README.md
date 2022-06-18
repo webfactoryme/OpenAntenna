@@ -1,6 +1,1 @@
-### install sqlalchemy
-
-pip install SQLAlchemy
-
-
- 
+Open Antenna is a open source "Platform in a Box" under active development. The intention is to allow anyone to create their own media or publishing platform using their own server to host the content.
