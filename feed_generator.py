@@ -6,21 +6,35 @@ from podgen import Podcast, Person, Media, Category, htmlencode
 import datetime
 import pytz
 import time
+from sqlalchemy import create_engine, MetaData
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+from sqlalchemy import text
+
+
+app = Flask(__name__)
 
 # Database Connection
-db = MySQLdb.connect(host="host",user="user",passwd="password",db="openantenna",port=3306)
+
+engine = create_engine(
+    "mysql://user:1234@localhost:3306/openantenna")        # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
+
+meta = MetaData(bind=engine)
+MetaData.reflect(meta)
+
+db = SQLAlchemy(app)
 
 # Get show data
-cursor = db.cursor()
-sql = "SELECT * FROM settings;"
-cursor.execute(sql)
-show_data = cursor.fetchone()
+ 
+sql = text("SELECT * FROM settings;")
+show_data=engine.execute(sql).fetchone()
+ 
 
 # Get episode data
-cursor = db.cursor()
-sql = "SELECT * FROM posts WHERE status = 'published' ORDER BY id DESC"
-cursor.execute(sql)
-episode_data = cursor.fetchall()
+ 
+sql = text("SELECT * FROM posts WHERE status = 'published' ORDER BY id DESC")
+episode_data= engine.execute(sql).fetchall()
+ 
 
 def make_feed():
     # Create feed

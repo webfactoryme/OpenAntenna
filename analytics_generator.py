@@ -1,9 +1,22 @@
 import MySQLdb
 from datetime import datetime
 import requests
+from sqlalchemy import create_engine, MetaData
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+from sqlalchemy import text
 
+
+
+app = Flask(__name__)
 # Create connection to the database
-db = MySQLdb.connect(host="host",user="user",passwd="password",db="openantenna",port=3306)
+engine = create_engine(
+    "mysql://user:1234@localhost:3306/openantenna")        # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
+
+meta = MetaData(bind=engine)
+MetaData.reflect(meta)
+
+db = SQLAlchemy(app)
 
 # Identify the log location
 log_location = '/var/log/apache2/leadandcircus-access.log'
@@ -18,9 +31,9 @@ with open(log_location) as fp:
         client = line.split('"')[5].split('"')[0]
         response = line.split('"')[2].split('"')[0].split(' ')[1].replace(' ','')
         # Check to see if data is already in database
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM leadandcircus.analytics WHERE ip ='{}' AND time ='{}' AND request ='{}';".format(ip_address,time,request))
-        data = cursor.fetchall()
+        
+        sql = text("SELECT * FROM leadandcircus.analytics WHERE ip ='{}' AND time ='{}' AND request ='{}';".format(ip_address,time,request))
+        data = engine.execute(sql)
         # If not, insert into the database
         if len(data) == 0:            
             # Try to scrape location data for the IP address
@@ -32,16 +45,19 @@ with open(log_location) as fp:
                 latitude = location_data['latitude']
                 longitude = location_data['longitude']
                 state = location_data['state']
-                cursor = db.cursor()
-                cursor.execute("INSERT INTO leadandcircus.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),'{}','{}','{}','{}','{}','{}')".format(ip_address,time,method,request,referral,client,response,country,city,state,latitude,longitude,postal,))
+
+                sql = text("INSERT INTO leadandcircus.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),'{}','{}','{}','{}','{}','{}')".format(ip_address,time,method,request,referral,client,response,country,city,state,latitude,longitude,postal,))
+                data = engine.execute(sql)
                 db.commit()
                 print('Added new line of data with location information:')
                 print(line + '\n')
             # If problem with scraping location data, insert with NULL values    
             except: 
-                cursor = db.cursor()
-                cursor.execute("INSERT INTO leadandcircus.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),NULL,NULL,NULL,NULL,NULL,NULL)".format(ip_address,time,method,request,referral,client,response))
+                
+                sql = text("INSERT INTO leadandcircus.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),NULL,NULL,NULL,NULL,NULL,NULL)".format(ip_address,time,method,request,referral,client,response))
+                data = engine.execute(sql)
                 db.commit()
+
                 print('Added new line of data WITHOUT location information:')
                 print(line + '\n')
         else:
