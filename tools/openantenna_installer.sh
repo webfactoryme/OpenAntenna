@@ -15,7 +15,6 @@ mkdir openantenna &&
 
 cd /var/www/openantenna/ &&
 
-
 cd /etc/apache2/sites-available/ &&
 
 rm * &&
@@ -31,8 +30,17 @@ git clone https://github.com/webfactoryme/OpenAntenna.git &&
 
 a2ensite openantenna.conf &&
 
+service apache2 restart &&
+
 # Create OpenAntenna Database in MySQL
 mysql -e "CREATE DATABASE IF NOT EXISTS openantenna;" || true &&
+
+mysql <<MYSQL_SCRIPT
+USE mysql;
+CREATE USER 'openantenna'@localhost IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'openantenna'@localhost IDENTIFIED BY 'password';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT &&
 
 # Run OpenAntenna Server for first time to generate DB tables
 timeout 2 python3 /var/www/openantenna/OpenAntenna/__init__.py &&
