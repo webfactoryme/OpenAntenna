@@ -53,4 +53,4 @@ mysql openantenna << EOF
 INSERT INTO openantenna.users (id,name,picture,email,phone,password,date_registered,last_login,user_type,status) VALUES (NULL, 'User', 'h>
 EOF
 
-echo "You can now run 'python3 /var/www/openantenna/OpenAntenna/__init__.py' to start the server"
+echo "OpenAntenna is now installed!"
