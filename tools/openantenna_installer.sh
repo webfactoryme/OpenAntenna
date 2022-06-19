@@ -2,7 +2,7 @@ sudo apt update &&
 sudo apt -y upgrade &&
 
 # Install required linux dependencies
-sudo apt install git apache2 mysql-server libmysqlclient-dev python3-pip certbot &&
+sudo apt install git apache2 mariadb-server python3-pip certbot libmariadb-dev-compat libmariadb-dev &&
 
 # Install required Python packages
 sudo pip3 install flask flask_sqlalchemy mysqlclient &&
@@ -23,7 +23,7 @@ timeout 2 python3 /var/www/OpenAntenna/__init__.py &&
 
 # Create User in OpenAntenna
 mysql openantenna << EOF 
-INSERT INTO openantenna.users (id,name,picture,email,phone,password,date_registered,last_login,user_type,status) VALUES (NULL, 'User', 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png', 'emailme@email.com', '9999999999', 'password', '2022-06-18 13:50:39', '2022-06-18 13:50:39', 'admin', 'active'); 
+INSERT INTO openantenna.users (id,name,picture,email,phone,password,date_registered,last_login,user_type,status) VALUES (NULL, 'User', 'h>
 EOF
 
 echo "You can now run 'python3 /var/www/OpenAntenna/__init__.py' to start the server"
