@@ -2,7 +2,7 @@ sudo apt update &&
 sudo apt -y upgrade &&
 
 # Install required linux dependencies
-sudo apt install git apache2 mariadb-server python3-pip certbot libmariadb-dev-compat libmariadb-dev &&
+sudo apt install git apache2 mariadb-server python3-pip certbot libmariadb-dev-compat libmariadb-dev libapache2-mod-wsgi &&
 
 # Install required Python packages
 sudo pip3 install flask flask_sqlalchemy mysqlclient &&
