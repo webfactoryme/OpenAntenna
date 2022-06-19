@@ -10,7 +10,7 @@ Base=declarative_base()
 app = Flask(__name__)
 
 # Database Connection
-engine = create_engine("mysql://root:password@localhost:3306/openantenna")    
+engine = create_engine("mysql://openantenna:password@localhost:3306/openantenna")    
 
 # Initialize Metadata Object
 meta = MetaData(bind=engine)
