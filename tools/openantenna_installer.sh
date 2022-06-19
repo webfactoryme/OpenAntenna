@@ -40,7 +40,7 @@ USE mysql;
 CREATE USER 'openantenna'@localhost IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON *.* TO 'openantenna'@localhost IDENTIFIED BY 'password';
 FLUSH PRIVILEGES;
-MYSQL_SCRIPT &&
+MYSQL_SCRIPT
 
 # Run OpenAntenna Server for first time to generate DB tables
 timeout 2 python3 /var/www/openantenna/OpenAntenna/__init__.py &&
