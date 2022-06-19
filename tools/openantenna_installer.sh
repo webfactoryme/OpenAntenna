@@ -50,7 +50,7 @@ sudo a2ensite openantenna.conf &&
 
 # Create User in OpenAntenna
 mysql openantenna << EOF 
-INSERT INTO openantenna.users (id,name,picture,email,phone,password,date_registered,last_login,user_type,status) VALUES (NULL, 'User', 'h>
+INSERT INTO openantenna.users (id,name,picture,email,phone,password,date_registered,last_login,user_type,status) VALUES (NULL, 'User', 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png', 'emailme@email.com', '9999999999', 'password', '2022-06-18 13:50:39', '2022-06-18 13:50:39', 'admin', 'active');
 EOF
 
 echo "OpenAntenna is now installed!"
