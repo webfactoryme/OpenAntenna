@@ -2,7 +2,7 @@ sudo apt update &&
 sudo apt -y upgrade &&
 
 # Install required linux dependencies
-sudo apt install git apache2 mariadb-server python3-pip certbot libmariadb-dev-compat libmariadb-dev libapache2-mod-wsgi &&
+sudo apt install git apache2 mariadb-server python3-pip certbot libmariadb-dev-compat libmariadb-dev libapache2-mod-wsgi-py3 &&
 
 # Install required Python packages
 sudo pip3 install flask flask_sqlalchemy mysqlclient &&
@@ -15,16 +15,21 @@ mkdir openantenna &&
 
 cd /var/www/openantenna/ &&
 
-wget https://raw.githubusercontent.com/webfactoryme/OpenAntenna/main/configs/openantenna.conf &&
 
 cd /etc/apache2/sites-available/ &&
 
-wget https://github.com/webfactoryme/OpenAntenna/blob/main/configs/openantenna.conf &&
+rm * &&
+
+wget https://raw.githubusercontent.com/webfactoryme/OpenAntenna/main/configs/openantenna.conf &&
+
+cd /var/www/openantenna/ &&
+
+wget https://raw.githubusercontent.com/webfactoryme/OpenAntenna/main/configs/flaskapp.wsgi &&
 
 # Clone OpenAntenna into /var/www/openantenna/ folder
 git clone https://github.com/webfactoryme/OpenAntenna.git &&
 
-# Add configurations for Apache 
+a2ensite openantenna.conf &&
 
 # Create OpenAntenna Database in MySQL
 mysql -e "CREATE DATABASE IF NOT EXISTS openantenna;" || true &&
