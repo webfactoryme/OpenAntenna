@@ -6,20 +6,16 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from sqlalchemy import text
 
-
-
 app = Flask(__name__)
-# Create connection to the database
-engine = create_engine(
-    "mysql://user:1234@localhost:3306/openantenna")        # substitue the 'user:1234@localhost:3306/openantenna' with <username>:<password>@<host>:<port>/<DB_name>
 
+# Create connection to the database
+engine = create_engine("mysql://openantenna:password@localhost:3306/openantenna") 
 meta = MetaData(bind=engine)
 MetaData.reflect(meta)
-
 db = SQLAlchemy(app)
 
 # Identify the log location
-log_location = '/var/log/apache2/leadandcircus-access.log'
+log_location = '/var/log/apache2/openantenna-access.log'
 
 with open(log_location) as fp:  
     for line in fp:
@@ -31,8 +27,7 @@ with open(log_location) as fp:
         client = line.split('"')[5].split('"')[0]
         response = line.split('"')[2].split('"')[0].split(' ')[1].replace(' ','')
         # Check to see if data is already in database
-        
-        sql = text("SELECT * FROM leadandcircus.analytics WHERE ip ='{}' AND time ='{}' AND request ='{}';".format(ip_address,time,request))
+        sql = text("SELECT * FROM openantenna.analytics WHERE ip ='{}' AND time ='{}' AND request ='{}';".format(ip_address,time,request))
         data = engine.execute(sql)
         # If not, insert into the database
         if len(data) == 0:            
@@ -46,18 +41,16 @@ with open(log_location) as fp:
                 longitude = location_data['longitude']
                 state = location_data['state']
 
-                sql = text("INSERT INTO leadandcircus.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),'{}','{}','{}','{}','{}','{}')".format(ip_address,time,method,request,referral,client,response,country,city,state,latitude,longitude,postal,))
+                sql = text("INSERT INTO openantenna.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),'{}','{}','{}','{}','{}','{}')".format(ip_address,time,method,request,referral,client,response,country,city,state,latitude,longitude,postal,))
                 data = engine.execute(sql)
                 db.commit()
                 print('Added new line of data with location information:')
                 print(line + '\n')
             # If problem with scraping location data, insert with NULL values    
             except: 
-                
-                sql = text("INSERT INTO leadandcircus.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),NULL,NULL,NULL,NULL,NULL,NULL)".format(ip_address,time,method,request,referral,client,response))
+                sql = text("INSERT INTO openantenna.analytics VALUES(NULL,'{}','{}','{}','{}','{}','{}','{}',now(),NULL,NULL,NULL,NULL,NULL,NULL)".format(ip_address,time,method,request,referral,client,response))
                 data = engine.execute(sql)
                 db.commit()
-
                 print('Added new line of data WITHOUT location information:')
                 print(line + '\n')
         else:
